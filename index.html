@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BodegaDigital — Sistema de inventario con IA</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --verde:       #0F6E56;
+      --verde-mid:   #1D9E75;
+      --verde-light: #E1F5EE;
+      --verde-dark:  #085041;
+      --bg:          #F4F6F8;
+      --text:        #1a1a1a;
+      --text-sub:    #6b7280;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* NAV */
+    nav {
+      background: #fff;
+      border-bottom: 1px solid #e5e7eb;
+      padding: 16px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+    .nav-logo {
+      width: 36px; height: 36px;
+      background: var(--verde);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+    }
+    .nav-brand h1 {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--verde);
+    }
+    .nav-brand span {
+      font-size: 11px;
+      color: var(--text-sub);
+      display: block;
+    }
+    .nav-version {
+      font-size: 12px;
+      color: var(--text-sub);
+      background: var(--verde-light);
+      color: var(--verde);
+      padding: 4px 12px;
+      border-radius: 99px;
+      font-weight: 600;
+    }
+
+    /* HERO */
+    .hero {
+      background: linear-gradient(135deg, var(--verde-dark) 0%, var(--verde) 50%, var(--verde-mid) 100%);
+      padding: 80px 32px 100px;
+      text-align: center;
+      color: #fff;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -80px; right: -80px;
+      width: 300px; height: 300px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 50%;
+    }
+    .hero::after {
+      content: '';
+      position: absolute;
+      bottom: -60px; left: -60px;
+      width: 200px; height: 200px;
+      background: rgba(255,255,255,0.04);
+      border-radius: 50%;
+    }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.25);
+      border-radius: 99px;
+      padding: 5px 16px;
+      font-size: 12px;
+      margin-bottom: 20px;
+    }
+    .hero h2 {
+      font-size: clamp(28px, 5vw, 48px);
+      font-weight: 800;
+      margin-bottom: 16px;
+      line-height: 1.15;
+      letter-spacing: -1px;
+    }
+    .hero p {
+      font-size: 16px;
+      opacity: 0.85;
+      max-width: 520px;
+      margin: 0 auto 36px;
+      line-height: 1.6;
+    }
+
+    /* BOTÓN DESCARGA */
+    .btn-download {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: #fff;
+      color: var(--verde);
+      font-size: 16px;
+      font-weight: 700;
+      padding: 16px 36px;
+      border-radius: 14px;
+      text-decoration: none;
+      transition: all 0.2s;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.2);
+    }
+    .btn-download:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 36px rgba(0,0,0,0.25);
+      background: #f0fdf4;
+    }
+    .btn-download:active {
+      transform: translateY(0);
+    }
+    .btn-icon {
+      width: 32px; height: 32px;
+      background: var(--verde-light);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px;
+    }
+    .btn-sub {
+      font-size: 11px;
+      color: var(--text-sub);
+      display: block;
+      font-weight: 400;
+      margin-top: 2px;
+    }
+    .hero-meta {
+      margin-top: 20px;
+      font-size: 12px;
+      opacity: 0.6;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+    }
+    .hero-meta span { display: flex; align-items: center; gap: 4px; }
+
+    /* FEATURES */
+    .features {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 64px 32px;
+    }
+    .features-title {
+      text-align: center;
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-sub);
+      margin-bottom: 32px;
+    }
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+    }
+    .feature-card {
+      background: #fff;
+      border-radius: 14px;
+      padding: 22px 20px;
+      border: 1px solid #f3f4f6;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .feature-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 28px rgba(0,0,0,0.08);
+    }
+    .feature-icon {
+      width: 44px; height: 44px;
+      background: var(--verde-light);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px;
+      margin-bottom: 14px;
+    }
+    .feature-card h3 {
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 6px;
+      color: var(--text);
+    }
+    .feature-card p {
+      font-size: 12px;
+      color: var(--text-sub);
+      line-height: 1.5;
+    }
+
+    /* CTA FINAL */
+    .cta {
+      background: linear-gradient(135deg, var(--verde) 0%, var(--verde-mid) 100%);
+      padding: 64px 32px;
+      text-align: center;
+      color: #fff;
+    }
+    .cta h2 {
+      font-size: 26px;
+      font-weight: 800;
+      margin-bottom: 10px;
+    }
+    .cta p {
+      font-size: 14px;
+      opacity: 0.8;
+      margin-bottom: 28px;
+    }
+
+    /* FOOTER */
+    footer {
+      background: #fff;
+      border-top: 1px solid #e5e7eb;
+      padding: 20px 32px;
+      text-align: center;
+      font-size: 12px;
+      color: var(--text-sub);
+    }
+
+    @media (max-width: 600px) {
+      nav { padding: 12px 16px; }
+      .hero { padding: 60px 20px 80px; }
+      .features { padding: 48px 20px; }
+      .btn-download { padding: 14px 24px; font-size: 14px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-brand" href="#">
+    <div class="nav-logo">📦</div>
+    <div>
+      <h1>BodegaDigital</h1>
+      <span>Sistema de inventario con IA</span>
+    </div>
+  </a>
+  <span class="nav-version">v1.0.0</span>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-badge">
+    🤖 Impulsado por Inteligencia Artificial
+  </div>
+  <h2>Controla tu bodega<br>de forma inteligente</h2>
+  <p>
+    Alertas automáticas de stock y vencimientos, predicción de ventas con IA,
+    escaneo de códigos de barras y reportes en Excel. Todo en un solo programa.
+  </p>
+
+  <a class="btn-download"
+     href="https://github.com/bryansit/bodegadigital/releases/download/v1.0.0/BodegaDigital.Setup.1.0.0.exe"
+     download>
+    <div class="btn-icon">⬇️</div>
+    <div>
+      Descargar BodegaDigital
+      <span class="btn-sub">Windows · v1.0.0 · 373 MB · Gratis</span>
+    </div>
+  </a>
+
+  <div class="hero-meta">
+    <span>✅ Sin internet requerido</span>
+    <span>✅ Tus datos son privados</span>
+    <span>✅ Fácil de instalar</span>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="features">
+  <div class="features-title">¿Qué incluye BodegaDigital?</div>
+  <div class="features-grid">
+
+    <div class="feature-card">
+      <div class="feature-icon">🔔</div>
+      <h3>Alertas automáticas</h3>
+      <p>Te avisa cuando un producto está por vencerse o tiene stock bajo. Sin hacer nada tú.</p>
+    </div>
+
+    <div class="feature-card">
+      <div class="feature-icon">🤖</div>
+      <h3>IA que predice ventas</h3>
+      <p>El sistema aprende de tu historial y predice cuánto venderás en los próximos 7 días.</p>
+    </div>
+
+    <div class="feature-card">
+      <div class="feature-icon">📷</div>
+      <h3>Escaneo por cámara</h3>
+      <p>Escanea códigos de barras con la cámara de tu celular o con un lector USB.</p>
+    </div>
+
+    <div class="feature-card">
+      <div class="feature-icon">📊</div>
+      <h3>Reportes en Excel</h3>
+      <p>Exporta todas tus ventas con predicciones de IA incluidas en un clic.</p>
+    </div>
+
+    <div class="feature-card">
+      <div class="feature-icon">🔐</div>
+      <h3>Datos 100% privados</h3>
+      <p>Todo se guarda en tu PC. Nadie más puede ver tu inventario. Código BOGI único.</p>
+    </div>
+
+    <div class="feature-card">
+      <div class="feature-icon">🏪</div>
+      <h3>Multi-bodega</h3>
+      <p>Cada bodega tiene su propia cuenta aislada. Perfecta para varias tiendas.</p>
+    </div>
+
+  </div>
+</section>
+
+<!-- CTA FINAL -->
+<section class="cta">
+  <h2>Empieza hoy mismo</h2>
+  <p>Descarga gratis, instala en segundos y empieza a controlar tu inventario.</p>
+  <a class="btn-download"
+     href="https://github.com/bryansit/bodegadigital/releases/download/v1.0.0/BodegaDigital.Setup.1.0.0.exe"
+     download>
+    <div class="btn-icon">⬇️</div>
+    <div>
+      Descargar BodegaDigital
+      <span class="btn-sub">Windows · v1.0.0 · 373 MB · Gratis</span>
+    </div>
+  </a>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  © 2026 BodegaDigital · Hecho con ❤️ para bodegueros peruanos ·
+  <a href="https://github.com/bryansit/bodegadigital" style="color:var(--verde);text-decoration:none">GitHub</a>
+</footer>
+
+</body>
+</html>
