@@ -2,8 +2,16 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>BodegaDigital — Sistema de inventario con IA</title>
+  
+  <!-- PWA Meta Tags -->
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#0F6E56">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="mobile-web-app-capable" content="yes">
+  
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -362,6 +370,15 @@
   © 2026 BodegaDigital · Hecho con ❤️ para bodegueros peruanos ·
   <a href="https://github.com/bryansit/bodegadigital" style="color:var(--verde);text-decoration:none">GitHub</a>
 </footer>
+
+<!-- PWA Service Worker -->
+<script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js')
+    .then(reg => console.log('✅ Service Worker registrado', reg))
+    .catch(err => console.log('❌ Error SW:', err));
+}
+</script>
 
 </body>
 </html>
